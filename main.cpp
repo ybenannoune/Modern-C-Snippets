@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include <iostream>
 #include <Windows.h>
 #include <vector>
@@ -11,6 +13,8 @@
 #include <functional>
 #include <numeric>
 #include <stdexcept>
+#include <cmath>
+#include <tuple>
 
 class Message {
 	std::string content;
@@ -20,6 +24,7 @@ public:
 
 	}	
 	//permet de ne réaliser qu'une comparaison du sens : Message == std::string 
+	//Passage par référence constante pour éviter une copie
 	bool operator==(const std::string&  rhs) const
 	{
 		return rhs.compare(content) > 0;
@@ -32,7 +37,7 @@ public:
 };
 
 //Prototype
-double division(const double& numerateur, const double& denominateur);
+double division(double numerateur, double denominateur);
 
 //Template
 template <typename Collection>
@@ -44,10 +49,15 @@ void afficher(Collection const& iterable)
 	}
 }
 
-//Passage par référence constante pour éviter une copie
-bool predicat_sort(const int& a, const int& b)
+
+bool predicat_sort(int a, int b)
 {
 	return a + 1 < b;
+}
+
+std::tuple<double, double> g(double angle)
+{
+	return { std::cos(angle), std::sin(angle) };
 }
 
 int main()
@@ -163,7 +173,7 @@ int main()
 
 	std::cout << std::endl << std::endl;
 
-	//particularité des sets, elles ne peuvent contenir qu'une seule fois un élement
+	//particularité des sets, elles ne peuvent contenir qu'une seule fois un élement [est trié contrairement à unordered_set]
 	std::set<int> nbrs_set{ 2, 3, 1, 7, -4 ,2 };	
 	//Il n'y aura qu'un seul 2 d'affiché
 	for (auto it{ std::cbegin(nbrs_set) }; it != std::cend(nbrs_set); ++it)
@@ -258,10 +268,24 @@ int main()
 		std::cout << "L'entier vaut " << entier << " dans la lambda." << std::endl;
 	};
 
+	//utilisation des tuple
+	using namespace std::literals;
+	auto infos = std::make_tuple("Clem"s, "Lagrume"s, "Fruit"s, 4);
+
+	//C++17, avant il fallait utiliser std::tie
+	/*
+	 double cosinus {};
+	 double sinus {};
+	 std::tie(cosinus, sinus) =  g(M_PI / 4.);
+	*/
+	auto [cosinus, sinus] = g(M_PI / 4.);
+	std::cout << "Voici le cosinus de PI / 4 : " << cosinus << std::endl;
+	std::cout << "Voici le sinus de PI / 4 : " << sinus << std::endl;
+
 	return 0;
 }
 
-double division(const double&  numerateur, const double&  denominateur)
+double division(double numerateur, double denominateur)
 {
 	assert(denominateur != 0.0 && "Le dénominateur ne peut pas valoir zéro.");
 	return numerateur / denominateur;
